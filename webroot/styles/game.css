@@ -1,0 +1,42 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f2ed;
+  --text-primary: #2a2a2a;
+  --text-secondary: #7a7a7a;
+  --tan: #dcc9a9;
+  --red: #b83a2d;
+  --green: #4e6851;
+  --cell-bg: #f5f2ed;
+  --cell-border: #dcc9a9;
+  --cell-hover: #efe8db;
+  --correct: #4e6851;
+  --wrong: #b83a2d;
+  --font-main: 'Segoe UI', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}

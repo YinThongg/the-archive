@@ -1,0 +1,17 @@
+{
+  "name": "the-archive",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "devvit play"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@devvit/public-api": "0.13.4"
+  },
+  "devDependencies": {
+    "@devvit/tsconfig": "0.13.4",
+    "typescript": "5.7.3"
+  }
+}
