@@ -52,96 +52,16 @@ function glyphSVG(shape, color) {
   return SHAPES[shape](COLORS[color]);
 }
 
-// A hardcoded first puzzle for testing.
-// null = empty cell, object = pre-filled clue { shape, color }.
-const PUZZLE = [
-  [
-    { shape: "circle", color: "red" },
-    null,
-    { shape: "triangle", color: "teal" },
-    null,
-    { shape: "star", color: "gold" },
-  ],
-  [
-    null,
-    { shape: "diamond", color: "purple" },
-    null,
-    { shape: "circle", color: "teal" },
-    null,
-  ],
-  [
-    { shape: "diamond", color: "gold" },
-    null,
-    { shape: "circle", color: "purple" },
-    null,
-    { shape: "triangle", color: "red" },
-  ],
-  [
-    null,
-    { shape: "star", color: "teal" },
-    null,
-    { shape: "diamond", color: "red" },
-    null,
-  ],
-  [
-    { shape: "star", color: "purple" },
-    null,
-    { shape: "triangle", color: "gold" },
-    null,
-    { shape: "circle", color: "red" },
-  ],
-];
+// --- Generate today's puzzle ---
+const GRID_SIZE = 5;
+const RULE_COUNT = 3;
+const REMOVE_COUNT = 12;
 
-// The correct answer for every cell (including pre-filled ones).
-// Used to check if a player's placement is right.
-const SOLUTION = [
-  [
-    { shape: "circle", color: "red" },
-    { shape: "star", color: "purple" },
-    { shape: "triangle", color: "teal" },
-    { shape: "diamond", color: "gold" },
-    { shape: "star", color: "gold" },
-  ],
-  [
-    { shape: "triangle", color: "gold" },
-    { shape: "diamond", color: "purple" },
-    { shape: "star", color: "red" },
-    { shape: "circle", color: "teal" },
-    { shape: "diamond", color: "teal" },
-  ],
-  [
-    { shape: "diamond", color: "gold" },
-    { shape: "circle", color: "red" },
-    { shape: "circle", color: "purple" },
-    { shape: "star", color: "teal" },
-    { shape: "triangle", color: "red" },
-  ],
-  [
-    { shape: "circle", color: "teal" },
-    { shape: "star", color: "teal" },
-    { shape: "diamond", color: "gold" },
-    { shape: "diamond", color: "red" },
-    { shape: "star", color: "purple" },
-  ],
-  [
-    { shape: "star", color: "purple" },
-    { shape: "triangle", color: "red" },
-    { shape: "triangle", color: "gold" },
-    { shape: "circle", color: "purple" },
-    { shape: "circle", color: "red" },
-  ],
-];
-
-// The glyphs the player needs to place (one per empty cell).
-// Built by collecting SOLUTION values where PUZZLE is null.
-const TRAY_GLYPHS = [];
-for (let r = 0; r < 5; r++) {
-  for (let c = 0; c < 5; c++) {
-    if (!PUZZLE[r][c]) {
-      TRAY_GLYPHS.push({ ...SOLUTION[r][c], id: TRAY_GLYPHS.length });
-    }
-  }
-}
+const _puzzle = generatePuzzle(todayRNG(), GRID_SIZE, RULE_COUNT, REMOVE_COUNT);
+const PUZZLE = _puzzle.grid;
+const SOLUTION = _puzzle.solution;
+const PUZZLE_RULES = _puzzle.rules;
+const TRAY_GLYPHS = _puzzle.tray.map((g, i) => ({ ...g, id: i }));
 
 // -- Game State --
 const state = {
@@ -325,7 +245,7 @@ function renderTitle(root) {
   // -- SVG container --
   const svgWrap = document.createElement("div");
   svgWrap.style.cssText =
-    "width:min(90vw,63vh);aspect-ratio:647/680;flex-shrink:0;position:relative;";
+    "width:min(85vw,60vh);aspect-ratio:647/680;flex-shrink:0;position:relative;";
 
   // -- Build SVG --
   const P = CRT.paths;
@@ -374,6 +294,10 @@ function renderTitle(root) {
         <filter id="boil" x="-15%" y="-15%" width="130%" height="130%">
           <feTurbulence id="boilTurb" type="turbulence" baseFrequency="0.013 0.019" numOctaves="3" seed="1" result="t"/>
           <feDisplacementMap in="SourceGraphic" in2="t" scale="5.8" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="boil-soft" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence id="boilSoftTurb" type="turbulence" baseFrequency="0.013 0.019" numOctaves="3" seed="1" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
         <filter id="bloom" x="-12%" y="-12%" width="124%" height="124%">
           <feGaussianBlur stdDeviation="1.8" result="b"/>
@@ -430,6 +354,8 @@ function renderTitle(root) {
         <rect x="0" y="0" width="647" height="447" fill="url(#vignette)"/>
         <rect id="staticRect" x="0" y="0" width="647" height="447" fill="#0a1612" opacity="0.09" filter="url(#crtStatic)"/>
         <rect id="flickerRect" x="0" y="0" width="647" height="447" fill="black" opacity="0.01"/>
+        <!-- Screen sparks container (inside clip so they stay on screen) -->
+        <g id="screenSparks"></g>
       </g>
 
       <g filter="url(#boil)">
@@ -524,33 +450,200 @@ function renderTitle(root) {
         <path d="M512 515 C514 504 510 496 492 490 C476 484 456 482 434 480" stroke="#1F1F1F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
       </g>
 
-      <foreignObject x="64" y="42" width="520" height="370">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;">
-          <h1 style="font-size:60px;font-weight:400;letter-spacing:2px;color:#dcc9a9;font-family:'Jersey 15',sans-serif;text-shadow:0 0 20px rgba(184,58,45,0.4),0 0 50px rgba(184,58,45,0.15);text-align:center;margin:0;">The Archive</h1>
-          <div style="width:40px;height:2px;background:#b83a2d;opacity:0.6;"></div>
-          <button id="beginBtn" style="padding:10px 40px;background:rgba(184,58,45,0.85);border:none;border-radius:20px;;color:#dcc9a9;font-size:16px;font-weight:700;letter-spacing:4px;cursor:pointer;font-family:'Courier New',monospace;text-transform:uppercase;">[ BEGIN ]</button>
-        </div>
-      </foreignObject>
+      <!-- Mouse click burst frame 1 (impact lines + sparks) -->
+      <g id="clickBurst" opacity="0">
+        <line class="burst-line" x1="536" y1="510" x2="548" y2="498" stroke-width="3" stroke-linecap="round"/>
+        <line class="burst-line" x1="542" y1="520" x2="558" y2="516" stroke-width="2.5" stroke-linecap="round"/>
+        <line class="burst-line" x1="538" y1="530" x2="553" y2="536" stroke-width="2" stroke-linecap="round"/>
+        <polygon class="burst-fill" points="552,504 555,498 558,504 554,501 550,501"/>
+        <polygon class="burst-fill" points="562,518 564,514 566,518 564,516 560,516" opacity="0.8"/>
+        <circle class="burst-dot" cx="548" cy="508" r="1.5"/>
+        <circle class="burst-dot" cx="556" cy="524" r="1.2"/>
+      </g>
+
+      <!-- Mouse click burst frame 2 (larger, fading) -->
+      <g id="clickBurst2" opacity="0">
+        <line class="burst-line" x1="538" y1="506" x2="556" y2="490" stroke-width="2.5" stroke-linecap="round"/>
+        <line class="burst-line" x1="546" y1="518" x2="568" y2="512" stroke-width="2" stroke-linecap="round"/>
+        <line class="burst-line" x1="540" y1="532" x2="560" y2="542" stroke-width="1.5" stroke-linecap="round"/>
+        <polygon class="burst-fill" points="560,496 564,488 568,496 564,492 556,492" opacity="0.6"/>
+        <circle class="burst-dot" cx="554" cy="502" r="1.2" opacity="0.6"/>
+        <circle class="burst-dot" cx="564" cy="528" r="1" opacity="0.5"/>
+      </g>
+
+      <!-- Mouse button press overlay (darkens left button on click) -->
+      <path id="mouseBtnPress" d="M490 522 C494 514 512 514 512 518 L512 550 C506 552 490 552 484 550 Z" fill="rgba(0,0,0,0.15)" opacity="0"/>
+
+      <!-- Title text with subtle boil wobble -->
+      <g filter="url(#boil-soft)">
+        <text x="324" y="200" text-anchor="middle" fill="#dcc9a9" font-family="'Jersey 15', sans-serif" font-size="60" font-weight="700" letter-spacing="2" style="paint-order:stroke fill;" stroke="rgba(220,201,169,0.3)" stroke-width="1">The Archive</text>
+      </g>
+      <!-- Red divider line -->
+      <line x1="304" y1="222" x2="344" y2="222" stroke="#b83a2d" stroke-width="2" opacity="0.6" filter="url(#boil-soft)"/>
+
+      <!-- Hand-drawn BEGIN button -->
+      <g id="beginBtn" style="cursor:pointer" filter="url(#boil)">
+        <!-- Sketchy filled bg — wobbly rounded rect -->
+        <path d="M270 298 C272 295 290 292 324 291 C350 290 370 291 378 293 C384 294 386 296 387 301 C388 306 387 318 386 322 C385 326 382 328 376 329 C368 330 348 331 324 331 C298 331 280 330 274 328 C269 326 267 323 267 318 C266 312 268 302 270 298 Z" fill="rgba(184,58,45,0.85)"/>
+        <!-- Multiple uneven strokes for that grease pencil outline -->
+        <path d="M272 299 C274 294 294 291 324 290 C356 289 378 292 383 296 C387 300 388 310 387 320 C386 326 382 329 374 330 C362 332 340 332 324 332 C304 332 282 331 274 328 C268 325 266 318 267 310 C268 303 270 299 272 299 Z" fill="none" stroke="#dcc9a9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M275 300 C278 295 298 293 324 292 C352 291 374 293 380 297 C384 301 385 312 384 320 C383 325 379 327 372 328 C360 330 342 330 324 330 C306 330 286 329 278 327 C272 325 270 320 270 312 C270 305 272 300 275 300 Z" fill="none" stroke="#dcc9a9" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+        <!-- Sketchy bracket marks -->
+        <path d="M285 304 C282 306 281 310 282 314 C283 318 284 320 287 322" fill="none" stroke="#dcc9a9" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M363 304 C366 306 367 310 366 314 C365 318 364 320 361 322" fill="none" stroke="#dcc9a9" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- Text -->
+        <text x="324" y="317" text-anchor="middle" fill="#dcc9a9" font-family="'Jersey 15', sans-serif" font-size="22" letter-spacing="4" style="text-transform:uppercase;">BEGIN</text>
+      </g>
     </svg>
   `;
 
   svgWrap.innerHTML = svgContent;
 
-  // -- Wire up BEGIN button inside SVG foreignObject --
+  // -- Burst color variants --
+  const BURST_PALETTES = [
+    { line: "#d4a843", fill: "#d4a843", dot: "#feffe0" },
+    { line: "#962D28", fill: "#b5185f", dot: "#feffe0" },
+    { line: "#35c1c2", fill: "#d0e86e", dot: "#feffe0" },
+    { line: "#b5185f", fill: "#331234", dot: "#d0e86e" },
+  ];
+
+  function applyBurstColor(palette) {
+    svgWrap.querySelectorAll(".burst-line").forEach(el => el.setAttribute("stroke", palette.line));
+    svgWrap.querySelectorAll(".burst-fill").forEach(el => el.setAttribute("fill", palette.fill));
+    svgWrap.querySelectorAll(".burst-dot").forEach(el => el.setAttribute("fill", palette.dot));
+  }
+
+  function playMouseClick(onDone) {
+    const palette = BURST_PALETTES[Math.floor(Math.random() * BURST_PALETTES.length)];
+    applyBurstColor(palette);
+
+    const burst1 = svgWrap.querySelector("#clickBurst");
+    const burst2 = svgWrap.querySelector("#clickBurst2");
+    const btnPress = svgWrap.querySelector("#mouseBtnPress");
+
+    if (btnPress) btnPress.setAttribute("opacity", "1");
+    if (burst1) burst1.setAttribute("opacity", "1");
+
+    setTimeout(() => {
+      if (btnPress) btnPress.setAttribute("opacity", "0");
+      if (burst1) burst1.setAttribute("opacity", "0");
+      if (burst2) burst2.setAttribute("opacity", "1");
+    }, 120);
+
+    setTimeout(() => {
+      if (burst2) burst2.setAttribute("opacity", "0");
+      if (onDone) onDone();
+    }, 280);
+  }
+
+  // -- Screen sparks: little glitchy flashes scattered on the CRT per click --
+  const screenSparksEl = svgWrap.querySelector("#screenSparks");
+  const SPARK_COLORS = ["#d4a843", "#35c1c2", "#b5185f", "#d0e86e", "#962D28", "#feffe0"];
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  // 4 distinct spark shapes — each returns an SVG group element
+  const SPARK_MAKERS = [
+    // Tiny 4-point cross
+    function (x, y, color) {
+      const g = document.createElementNS(SVG_NS, "g");
+      const len = 4 + Math.random() * 3;
+      [[ 0, -1], [0, 1], [-1, 0], [1, 0]].forEach(([dx, dy]) => {
+        const l = document.createElementNS(SVG_NS, "line");
+        l.setAttribute("x1", x); l.setAttribute("y1", y);
+        l.setAttribute("x2", x + dx * len); l.setAttribute("y2", y + dy * len);
+        l.setAttribute("stroke", color); l.setAttribute("stroke-width", "1.5");
+        l.setAttribute("stroke-linecap", "round");
+        g.appendChild(l);
+      });
+      return g;
+    },
+    // Small diamond sparkle
+    function (x, y, color) {
+      const s = 3 + Math.random() * 2;
+      const p = document.createElementNS(SVG_NS, "polygon");
+      p.setAttribute("points", `${x},${y - s} ${x + s * 0.6},${y} ${x},${y + s} ${x - s * 0.6},${y}`);
+      p.setAttribute("fill", color); p.setAttribute("opacity", "0.9");
+      return p;
+    },
+    // Dot cluster (2-3 tiny circles)
+    function (x, y, color) {
+      const g = document.createElementNS(SVG_NS, "g");
+      const count = 2 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < count; i++) {
+        const c = document.createElementNS(SVG_NS, "circle");
+        c.setAttribute("cx", x + (Math.random() - 0.5) * 10);
+        c.setAttribute("cy", y + (Math.random() - 0.5) * 10);
+        c.setAttribute("r", 1 + Math.random() * 1.5);
+        c.setAttribute("fill", color); c.setAttribute("opacity", String(0.6 + Math.random() * 0.4));
+        g.appendChild(c);
+      }
+      return g;
+    },
+    // Short diagonal slash
+    function (x, y, color) {
+      const l = document.createElementNS(SVG_NS, "line");
+      const angle = Math.random() * Math.PI;
+      const len = 4 + Math.random() * 5;
+      l.setAttribute("x1", x - Math.cos(angle) * len);
+      l.setAttribute("y1", y - Math.sin(angle) * len);
+      l.setAttribute("x2", x + Math.cos(angle) * len);
+      l.setAttribute("y2", y + Math.sin(angle) * len);
+      l.setAttribute("stroke", color); l.setAttribute("stroke-width", String(1 + Math.random()));
+      l.setAttribute("stroke-linecap", "round");
+      return l;
+    },
+  ];
+
+  function spawnScreenSparks() {
+    const count = 3 + Math.floor(Math.random() * 3);
+    const sparks = [];
+    for (let i = 0; i < count; i++) {
+      const x = 100 + Math.random() * 440;
+      const y = 60 + Math.random() * 320;
+      const color = SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)];
+      const maker = SPARK_MAKERS[Math.floor(Math.random() * SPARK_MAKERS.length)];
+      const el = maker(x, y, color);
+      screenSparksEl.appendChild(el);
+      sparks.push(el);
+    }
+    // Flash then fade out
+    setTimeout(() => {
+      sparks.forEach(el => el.setAttribute("opacity", "0.5"));
+    }, 140);
+    setTimeout(() => {
+      sparks.forEach(el => el.setAttribute("opacity", "0.15"));
+    }, 250);
+    setTimeout(() => {
+      sparks.forEach(el => el.remove());
+    }, 350);
+  }
+
+  // -- Any click on the screen triggers the mouse animation + screen sparks --
+  wrapper.addEventListener("click", (e) => {
+    if (e.target.closest("#beginBtn")) return;
+    playMouseClick();
+    spawnScreenSparks();
+  });
+
+  // -- Wire up BEGIN button (SVG group) --
   const startBtn = svgWrap.querySelector("#beginBtn");
+  const btnFill = startBtn.querySelector("path");
   startBtn.addEventListener("mouseenter", () => {
-    startBtn.style.background = "rgba(154, 47, 36, 0.9)";
+    btnFill.setAttribute("fill", "rgba(154,47,36,0.95)");
   });
   startBtn.addEventListener("mouseleave", () => {
-    startBtn.style.background = "rgba(184, 58, 45, 0.85)";
+    btnFill.setAttribute("fill", "rgba(184,58,45,0.85)");
   });
   startBtn.addEventListener("click", () => {
-    titleIntervals.forEach(clearInterval);
-    titleIntervals = [];
-    document.body.style.background = "";
-    document.getElementById("root").style.padding = "";
-    state.phase = "playing";
-    render();
+    spawnScreenSparks();
+    playMouseClick(() => {
+      titleIntervals.forEach(clearInterval);
+      titleIntervals = [];
+      document.body.style.background = "";
+      document.getElementById("root").style.padding = "";
+      state.phase = "playing";
+      render();
+    });
   });
 
   wrapper.appendChild(svgWrap);
@@ -568,10 +661,12 @@ function renderTitle(root) {
   // -- Animate: line boil (~12fps) --
   let boilSeed = 1;
   const boilEl = svgWrap.querySelector("#boilTurb");
+  const boilSoftEl = svgWrap.querySelector("#boilSoftTurb");
   titleIntervals.push(
     setInterval(() => {
       boilSeed = (boilSeed % 97) + 1;
       if (boilEl) boilEl.setAttribute("seed", boilSeed);
+      if (boilSoftEl) boilSoftEl.setAttribute("seed", boilSeed);
     }, 82),
   );
 
