@@ -1,17 +1,21 @@
 :root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f2ed;
-  --text-primary: #2a2a2a;
-  --text-secondary: #7a7a7a;
+  --bg-primary: #1a1a18;
+  --bg-secondary: #242420;
+  --text-primary: #dcc9a9;
+  --text-secondary: #8a7e6b;
   --tan: #dcc9a9;
   --red: #b83a2d;
   --green: #4e6851;
-  --cell-bg: #f5f2ed;
-  --cell-border: #dcc9a9;
-  --cell-hover: #efe8db;
+  --teal: #5b9a8b;
+  --gold: #d4a843;
+  --purple: #8b6aad;
+  --cell-bg: #242420;
+  --cell-border: #3a3832;
+  --cell-hover: #2e2e28;
   --correct: #4e6851;
   --wrong: #b83a2d;
-  --font-main: 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Jersey 15', sans-serif;
+  --font-main: 'Courier New', 'Courier', monospace;
 }
 
 * {
@@ -45,17 +49,19 @@ html, body {
   display: grid;
   grid-template-columns: repeat(5, 64px);
   grid-template-rows: repeat(5, 64px);
-  gap: 4px;
+  gap: 3px;
+  border: 2px solid var(--tan);
+  padding: 3px;
+  border-radius: 12px;
 }
 
 .cell {
   background: var(--cell-bg);
   border: 1px solid var(--cell-border);
-  border-radius: 4px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   aspect-ratio: 1;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -63,10 +69,57 @@ html, body {
 
 .cell:hover {
   background: var(--cell-hover);
+  border-color: var(--tan);
 }
 
 .cell.prefilled {
   cursor: default;
   background: var(--bg-primary);
+  border-color: var(--cell-border);
+}
+
+.cell.prefilled:hover {
+  background: var(--bg-primary);
+  border-color: var(--cell-border);
+}
+
+.glyph {
+  width: 32px;
+  height: 32px;
+}
+
+.tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  max-width: 350px;
+}
+
+.tray-item {
+  width: 48px;
+  height: 48px;
+  background: var(--cell-bg);
+  border: 1px solid var(--cell-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tray-item:hover {
   border-color: var(--tan);
+}
+
+.tray-item.selected {
+  border-color: var(--tan);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 12px rgba(220, 201, 169, 0.2);
+}
+
+.tray-item.used {
+  opacity: 0.15;
+  cursor: default;
 }
