@@ -126,3 +126,13 @@ html, body {
   opacity: 0.15;
   cursor: default;
 }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.12; }
+}
+
+@keyframes float-note {
+  0%, 100% { transform: translateY(0) rotate(-5deg); opacity: 0.65; }
+  50% { transform: translateY(-10px) rotate(4deg); opacity: 0.92; }
+}

@@ -3,10 +3,9 @@
 // ============================================
 // Defines hidden rule types and validates glyph placements.
 // Each rule is a function: (grid, size) → boolean
-// Grid is a 2D array where each cell is { shape, color } or null (empty/blocked).
+// Grid is a 2D array where each cell is { shape, color } or null (empty/blocked)
 
 const RULE_TYPES = {
-
   // --- Adjacency Rules ---
 
   "no-adjacent-same-color": {
@@ -16,8 +15,19 @@ const RULE_TYPES = {
         for (let c = 0; c < size; c++) {
           const cell = grid[r][c];
           if (!cell) continue;
-          if (c + 1 < size && grid[r][c + 1] && grid[r][c + 1].color === cell.color) return false;
-          if (r + 1 < size && grid[r + 1] && grid[r + 1][c] && grid[r + 1][c].color === cell.color) return false;
+          if (
+            c + 1 < size &&
+            grid[r][c + 1] &&
+            grid[r][c + 1].color === cell.color
+          )
+            return false;
+          if (
+            r + 1 < size &&
+            grid[r + 1] &&
+            grid[r + 1][c] &&
+            grid[r + 1][c].color === cell.color
+          )
+            return false;
         }
       }
       return true;
@@ -31,8 +41,19 @@ const RULE_TYPES = {
         for (let c = 0; c < size; c++) {
           const cell = grid[r][c];
           if (!cell) continue;
-          if (c + 1 < size && grid[r][c + 1] && grid[r][c + 1].shape === cell.shape) return false;
-          if (r + 1 < size && grid[r + 1] && grid[r + 1][c] && grid[r + 1][c].shape === cell.shape) return false;
+          if (
+            c + 1 < size &&
+            grid[r][c + 1] &&
+            grid[r][c + 1].shape === cell.shape
+          )
+            return false;
+          if (
+            r + 1 < size &&
+            grid[r + 1] &&
+            grid[r + 1][c] &&
+            grid[r + 1][c].shape === cell.shape
+          )
+            return false;
         }
       }
       return true;
@@ -48,7 +69,8 @@ const RULE_TYPES = {
           const cell = grid[r][c];
           if (!cell || cell.shape !== params.shape1) continue;
           const neighbors = getNeighbors(grid, r, c, size);
-          if (!neighbors.some(n => n && n.shape === params.shape2)) return false;
+          if (!neighbors.some((n) => n && n.shape === params.shape2))
+            return false;
         }
       }
       return true;
@@ -124,7 +146,8 @@ const RULE_TYPES = {
       for (let r = 0; r < size; r++) {
         let count = 0;
         for (let c = 0; c < size; c++) {
-          if (grid[r][c] && grid[r][c][params.property] === params.value) count++;
+          if (grid[r][c] && grid[r][c][params.property] === params.value)
+            count++;
         }
         if (count > params.max) return false;
       }
@@ -139,7 +162,8 @@ const RULE_TYPES = {
       for (let c = 0; c < size; c++) {
         let count = 0;
         for (let r = 0; r < size; r++) {
-          if (grid[r][c] && grid[r][c][params.property] === params.value) count++;
+          if (grid[r][c] && grid[r][c][params.property] === params.value)
+            count++;
         }
         if (count > params.max) return false;
       }
@@ -172,7 +196,8 @@ const RULE_TYPES = {
         for (let c = 0; c < size; c++) {
           const cell = grid[r][c];
           if (!cell || cell[params.property] !== params.value) continue;
-          if (r === 0 || r === size - 1 || c === 0 || c === size - 1) return false;
+          if (r === 0 || r === size - 1 || c === 0 || c === size - 1)
+            return false;
         }
       }
       return true;
@@ -183,7 +208,12 @@ const RULE_TYPES = {
     // params: { property: "color"|"shape", value: "circle"|"teal" }
     label: (p) => `Corners must contain a ${p.value}`,
     check(grid, size, params) {
-      const corners = [[0, 0], [0, size - 1], [size - 1, 0], [size - 1, size - 1]];
+      const corners = [
+        [0, 0],
+        [0, size - 1],
+        [size - 1, 0],
+        [size - 1, size - 1],
+      ];
       for (const [r, c] of corners) {
         if (!grid[r][c]) continue;
         if (grid[r][c][params.property] !== params.value) return false;
@@ -199,7 +229,8 @@ const RULE_TYPES = {
     label: (p) => `${p.value1} and ${p.value2} never share a row`,
     check(grid, size, params) {
       for (let r = 0; r < size; r++) {
-        let has1 = false, has2 = false;
+        let has1 = false,
+          has2 = false;
         for (let c = 0; c < size; c++) {
           if (!grid[r][c]) continue;
           if (grid[r][c][params.property] === params.value1) has1 = true;
@@ -216,7 +247,8 @@ const RULE_TYPES = {
     label: (p) => `${p.value1} and ${p.value2} never share a column`,
     check(grid, size, params) {
       for (let c = 0; c < size; c++) {
-        let has1 = false, has2 = false;
+        let has1 = false,
+          has2 = false;
         for (let r = 0; r < size; r++) {
           if (!grid[r][c]) continue;
           if (grid[r][c][params.property] === params.value1) has1 = true;
@@ -237,13 +269,19 @@ const RULE_TYPES = {
           const cell = grid[r][c];
           if (!cell) continue;
           const diags = [
-            [r - 1, c - 1], [r - 1, c + 1],
-            [r + 1, c - 1], [r + 1, c + 1],
+            [r - 1, c - 1],
+            [r - 1, c + 1],
+            [r + 1, c - 1],
+            [r + 1, c + 1],
           ];
           for (const [dr, dc] of diags) {
             if (dr >= 0 && dr < size && dc >= 0 && dc < size) {
               const neighbor = grid[dr][dc];
-              if (neighbor && neighbor[params.property] === cell[params.property]) return false;
+              if (
+                neighbor &&
+                neighbor[params.property] === cell[params.property]
+              )
+                return false;
             }
           }
         }
@@ -279,7 +317,7 @@ function validateGrid(grid, size, rules) {
 // Check if placing a glyph at (row, col) would violate any rules.
 // Makes a temporary copy with the placement and validates.
 function validatePlacement(grid, size, rules, row, col, glyph) {
-  const testGrid = grid.map(r => r.map(c => c ? { ...c } : null));
+  const testGrid = grid.map((r) => r.map((c) => (c ? { ...c } : null)));
   testGrid[row][col] = { ...glyph };
   return validateGrid(testGrid, size, rules);
 }

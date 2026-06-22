@@ -48,8 +48,11 @@ function dateSeed(dateStr) {
 // Convenience: get today's RNG
 function todayRNG() {
   const d = new Date();
-  const str = d.getFullYear() + "-" +
-    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+  const str =
+    d.getFullYear() +
+    "-" +
+    String(d.getMonth() + 1).padStart(2, "0") +
+    "-" +
     String(d.getDate()).padStart(2, "0");
   return createRNG(dateSeed(str));
 }
@@ -61,11 +64,13 @@ function todayRNG() {
 const RULE_TEMPLATES = [
   // Adjacency — at most 1 picked (stacking these makes generation very hard)
   {
-    type: "no-adjacent-same-color", group: "adjacency",
+    type: "no-adjacent-same-color",
+    group: "adjacency",
     genParams: () => null,
   },
   {
-    type: "no-adjacent-same-shape", group: "adjacency",
+    type: "no-adjacent-same-shape",
+    group: "adjacency",
     genParams: () => null,
   },
   // must-adjacent excluded: can't be validated incrementally during
@@ -73,68 +78,99 @@ const RULE_TEMPLATES = [
 
   // Counting — safe on any grid size
   {
-    type: "row-max-count", group: "counting",
+    type: "row-max-count",
+    group: "counting",
     genParams(rng) {
       const prop = pick(rng, ["color", "shape"]);
       const values = prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES;
-      return { property: prop, value: pick(rng, values), max: 1 + Math.floor(rng() * 2) };
+      return {
+        property: prop,
+        value: pick(rng, values),
+        max: 1 + Math.floor(rng() * 2),
+      };
     },
   },
   {
-    type: "col-max-count", group: "counting",
+    type: "col-max-count",
+    group: "counting",
     genParams(rng) {
       const prop = pick(rng, ["color", "shape"]);
       const values = prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES;
-      return { property: prop, value: pick(rng, values), max: 1 + Math.floor(rng() * 2) };
+      return {
+        property: prop,
+        value: pick(rng, values),
+        max: 1 + Math.floor(rng() * 2),
+      };
     },
   },
 
   // Positional
   {
-    type: "edge-only", group: "positional",
+    type: "edge-only",
+    group: "positional",
     genParams(rng) {
       const prop = pick(rng, ["color", "shape"]);
-      return { property: prop, value: pick(rng, prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES) };
+      return {
+        property: prop,
+        value: pick(rng, prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES),
+      };
     },
   },
   {
-    type: "center-only", group: "positional",
+    type: "center-only",
+    group: "positional",
     genParams(rng) {
       const prop = pick(rng, ["color", "shape"]);
-      return { property: prop, value: pick(rng, prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES) };
+      return {
+        property: prop,
+        value: pick(rng, prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES),
+      };
     },
   },
   {
-    type: "corner-must", group: "positional",
+    type: "corner-must",
+    group: "positional",
     genParams(rng) {
       const prop = pick(rng, ["color", "shape"]);
-      return { property: prop, value: pick(rng, prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES) };
+      return {
+        property: prop,
+        value: pick(rng, prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES),
+      };
     },
   },
 
   // Relational — at most 1 exclusion rule per axis
   {
-    type: "not-in-same-row", group: "exclusion-row",
+    type: "not-in-same-row",
+    group: "exclusion-row",
     genParams(rng) {
       const prop = pick(rng, ["color", "shape"]);
       const vals = prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES;
       const v1 = pick(rng, vals);
-      const v2 = pick(rng, vals.filter(v => v !== v1));
+      const v2 = pick(
+        rng,
+        vals.filter((v) => v !== v1),
+      );
       return { property: prop, value1: v1, value2: v2 };
     },
   },
   {
-    type: "not-in-same-col", group: "exclusion-col",
+    type: "not-in-same-col",
+    group: "exclusion-col",
     genParams(rng) {
       const prop = pick(rng, ["color", "shape"]);
       const vals = prop === "color" ? GLYPH_COLORS : GLYPH_SHAPES;
       const v1 = pick(rng, vals);
-      const v2 = pick(rng, vals.filter(v => v !== v1));
+      const v2 = pick(
+        rng,
+        vals.filter((v) => v !== v1),
+      );
       return { property: prop, value1: v1, value2: v2 };
     },
   },
   {
-    type: "diagonal-no-same", group: "diagonal",
+    type: "diagonal-no-same",
+    group: "diagonal",
     genParams(rng) {
       return { property: pick(rng, ["color", "shape"]) };
     },
@@ -213,8 +249,8 @@ function generateSolution(rng, size, rules) {
 
   // Rules like must-adjacent can't be validated on a partial grid
   // (unfilled neighbors would cause false negatives), so we split them out.
-  const incrementalRules = rules.filter(r => !GLOBAL_ONLY_RULES.has(r.type));
-  const globalRules = rules.filter(r => GLOBAL_ONLY_RULES.has(r.type));
+  const incrementalRules = rules.filter((r) => !GLOBAL_ONLY_RULES.has(r.type));
+  const globalRules = rules.filter((r) => GLOBAL_ONLY_RULES.has(r.type));
 
   const grid = Array.from({ length: size }, () => Array(size).fill(null));
   let attempts = 0;
@@ -253,8 +289,14 @@ function generateSolution(rng, size, rules) {
 // players observe and deduce the hidden rules.
 
 function removeClues(rng, solution, size, removeTarget) {
-  const grid = solution.map(r => r.map(c => ({ ...c })));
-  const positions = shuffle(rng, Array.from({ length: size * size }, (_, i) => [Math.floor(i / size), i % size]));
+  const grid = solution.map((r) => r.map((c) => ({ ...c })));
+  const positions = shuffle(
+    rng,
+    Array.from({ length: size * size }, (_, i) => [
+      Math.floor(i / size),
+      i % size,
+    ]),
+  );
   const tray = [];
 
   for (const [r, c] of positions) {

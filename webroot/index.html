@@ -10,12 +10,38 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Jersey+15&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              tan: '#dcc9a9',
+              'archive-red': '#b83a2d',
+              'archive-teal': '#5b9a8b',
+              'archive-gold': '#d4a843',
+              'archive-purple': '#8b6aad',
+              'archive-green': '#4e6851',
+              'bg-primary': '#1a1a18',
+              'bg-secondary': '#242420',
+              'text-secondary': '#8a7e6b',
+            },
+            fontFamily: {
+              display: ["'Jersey 15'", 'sans-serif'],
+              mono: ["'Courier New'", 'Courier', 'monospace'],
+            },
+          },
+        },
+      };
+    </script>
     <link rel="stylesheet" href="styles/game.css" />
   </head>
   <body>
     <div id="root"></div>
+    <script src="glyphs.js"></script>
     <script src="rules.js"></script>
     <script src="puzzle.js"></script>
+    <script src="title.js"></script>
     <script src="game.js"></script>
   </body>
 </html>
