@@ -325,7 +325,7 @@ function renderTitle(root) {
   // -- SVG container --
   const svgWrap = document.createElement("div");
   svgWrap.style.cssText =
-    "width:min(50vw,90vh);aspect-ratio:647/447;flex-shrink:0;position:relative;";
+    "width:min(90vw,63vh);aspect-ratio:647/680;flex-shrink:0;position:relative;";
 
   // -- Build SVG --
   const P = CRT.paths;
@@ -369,7 +369,7 @@ function renderTitle(root) {
     .join("");
 
   const svgContent = `
-    <svg viewBox="0 0 647 447" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+    <svg viewBox="0 0 647 680" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
       <defs>
         <filter id="boil" x="-15%" y="-15%" width="130%" height="130%">
           <feTurbulence id="boilTurb" type="turbulence" baseFrequency="0.013 0.019" numOctaves="3" seed="1" result="t"/>
@@ -440,6 +440,89 @@ function renderTitle(root) {
       </g>
 
       <path d="${P.screen}" fill="none" stroke="rgba(14,175,65,0.13)" stroke-width="2" filter="url(#phosphor)"/>
+
+      <!-- Monitor stand -->
+      <g filter="url(#boil)">
+        <path d="M285 447 C293 448 297 451 300 458 L305 475 C306 477 313 479 324 479 C335 479 342 477 343 475 L348 458 C351 451 355 448 363 447" stroke="#1F1F1F" stroke-width="3.5" fill="none"/>
+        <path d="M275 479 C305 476 343 476 373 479 C377 480 378 483 375 485 L273 485 C270 483 271 480 275 479 Z" fill="#DCC9A9" filter="url(#grain)" stroke="#1F1F1F" stroke-width="2"/>
+      </g>
+
+      <!-- Keyboard - 3D perspective (top face is trapezoid, front edge visible) -->
+      <g filter="url(#boil)">
+        <!-- Front edge (darker face) -->
+        <path d="M100 572 C220 578 340 578 450 572 L455 586 C340 593 220 593 95 586 Z" fill="#b8a888" filter="url(#grain)"/>
+        <path d="M100 572 C220 578 340 578 450 572 L455 586 C340 593 220 593 95 586 Z" stroke="#1F1F1F" stroke-width="3" fill="none"/>
+        <!-- Top face (wider at bottom = closer to viewer) -->
+        <path d="M130 500 C230 496 330 496 420 500 L450 572 C340 578 220 578 100 572 Z" fill="#DCC9A9" filter="url(#grain)"/>
+        <path d="M130 500 C230 496 330 496 420 500 L450 572 C340 578 220 578 100 572 Z" stroke="#1F1F1F" stroke-width="4" fill="none"/>
+        <path d="M130 500 C230 496 330 496 420 500 L450 572 C340 578 220 578 100 572 Z" stroke="#1F1F1F" stroke-width="2" fill="none" filter="url(#bloom)"/>
+      </g>
+
+      <!-- Keyboard keys - centered, chunky 3D style -->
+      <!-- Row 1 (number row - 13 keys) -->
+      <g filter="url(#boil)">
+        ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+          .map((i) => {
+            const x = 155 + i * 20 + Math.sin(i * 1.7) * 1.0;
+            return `<rect x="${x}" y="509" width="15" height="10" rx="1.5" fill="#c4b797" stroke="#1F1F1F" stroke-width="1.5"/><line x1="${x + 1}" y1="519" x2="${x + 14}" y2="519" stroke="#1F1F1F" stroke-width="2" opacity="0.5"/>`;
+          })
+          .join("")}
+      </g>
+      <!-- Row 2 (12 keys) -->
+      <g filter="url(#boil)">
+        ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+          .map((i) => {
+            const x = 146 + i * 22 + Math.cos(i * 2.1) * 0.9;
+            return `<rect x="${x}" y="524" width="16" height="11" rx="1.5" fill="#c4b797" stroke="#1F1F1F" stroke-width="1.5"/><line x1="${x + 1}" y1="535" x2="${x + 15}" y2="535" stroke="#1F1F1F" stroke-width="2" opacity="0.5"/>`;
+          })
+          .join("")}
+      </g>
+      <!-- Row 3 (11 keys) -->
+      <g filter="url(#boil)">
+        ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          .map((i) => {
+            const x = 140 + i * 24 + Math.sin(i * 1.3) * 0.8;
+            return `<rect x="${x}" y="540" width="18" height="11" rx="1.5" fill="#c4b797" stroke="#1F1F1F" stroke-width="1.5"/><line x1="${x + 1}" y1="551" x2="${x + 17}" y2="551" stroke="#1F1F1F" stroke-width="2" opacity="0.5"/>`;
+          })
+          .join("")}
+      </g>
+      <!-- Row 4 (bottom + spacebar) -->
+      <g filter="url(#boil)">
+        ${[0, 1, 2]
+          .map((i) => {
+            const x = 134 + i * 27 + Math.cos(i * 2.5) * 0.7;
+            return `<rect x="${x}" y="556" width="20" height="11" rx="1.5" fill="#c4b797" stroke="#1F1F1F" stroke-width="1.5"/><line x1="${x + 1}" y1="567" x2="${x + 19}" y2="567" stroke="#1F1F1F" stroke-width="2" opacity="0.5"/>`;
+          })
+          .join("")}
+        <rect x="220" y="556" width="118" height="11" rx="2.5" fill="#c4b797" stroke="#1F1F1F" stroke-width="1.5"/>
+        <line x1="221" y1="567" x2="337" y2="567" stroke="#1F1F1F" stroke-width="2" opacity="0.5"/>
+        ${[0, 1, 2]
+          .map((i) => {
+            const x = 346 + i * 27 + Math.sin(i * 1.9) * 0.6;
+            return `<rect x="${x}" y="556" width="20" height="11" rx="1.5" fill="#c4b797" stroke="#1F1F1F" stroke-width="1.5"/><line x1="${x + 1}" y1="567" x2="${x + 19}" y2="567" stroke="#1F1F1F" stroke-width="2" opacity="0.5"/>`;
+          })
+          .join("")}
+      </g>
+
+      <!-- Mouse - 3D perspective (top face + front edge) -->
+      <g filter="url(#boil)">
+        <!-- Front edge (darker face) -->
+        <path d="M484 580 C490 582 534 582 540 580 L543 594 C536 598 492 598 485 594 Z" fill="#b8a888" filter="url(#grain)"/>
+        <path d="M484 580 C490 582 534 582 540 580 L543 594 C536 598 492 598 485 594 Z" stroke="#1F1F1F" stroke-width="2.5" fill="none"/>
+        <!-- Top face -->
+        <path d="M490 522 C494 514 530 514 534 522 L540 580 C534 582 490 582 484 580 Z" fill="#DCC9A9" filter="url(#grain)"/>
+        <path d="M490 522 C494 514 530 514 534 522 L540 580 C534 582 490 582 484 580 Z" stroke="#1F1F1F" stroke-width="3.5" fill="none"/>
+        <path d="M490 522 C494 514 530 514 534 522 L540 580 C534 582 490 582 484 580 Z" stroke="#1F1F1F" stroke-width="2" fill="none" filter="url(#bloom)"/>
+        <!-- Mouse button divider -->
+        <line x1="512" y1="518" x2="512" y2="550" stroke="#1F1F1F" stroke-width="1.5"/>
+        <!-- Mouse scroll wheel -->
+        <ellipse cx="512" cy="530" rx="3" ry="5" fill="none" stroke="#1F1F1F" stroke-width="1.2"/>
+      </g>
+
+      <!-- Mouse cord -->
+      <g filter="url(#boil)">
+        <path d="M512 515 C514 504 510 496 492 490 C476 484 456 482 434 480" stroke="#1F1F1F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </g>
 
       <foreignObject x="64" y="42" width="520" height="370">
         <div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;">
@@ -516,7 +599,7 @@ function renderTitle(root) {
 function renderPlaying(root) {
   const wrapper = document.createElement("div");
   wrapper.style.cssText =
-    "display:flex; flex-direction:column; align-items:center; gap:20px;";
+    "display:flex; flex-direction:column; align-items:center; gap:12px;";
 
   // -- Crack counter --
   const header = document.createElement("div");
@@ -619,7 +702,7 @@ function renderResults(root) {
 
   const container = document.createElement("div");
   container.style.cssText =
-    "display:flex; flex-direction:column; align-items:center; gap:20px;";
+    "display:flex; flex-direction:column; align-items:center; gap:12px;";
 
   const heading = document.createElement("h1");
   heading.textContent = "The Archive";
