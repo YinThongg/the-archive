@@ -1,6 +1,6 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-  "name": "gotglyphed",
+  "name": "gotglyphed2",
   "post": {
     "dir": "webroot",
     "entrypoints": {
@@ -12,7 +12,7 @@
   },
   "server": {
     "dir": "dist/server",
-    "entry": "index.js"
+    "entry": "index.cjs"
   },
   "menu": {
     "items": [
@@ -27,5 +27,8 @@
   "permissions": {
     "redis": true,
     "reddit": true
+  },
+  "dev": {
+    "subreddit": "gotglyphed_dev"
   }
 }
