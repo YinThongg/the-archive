@@ -1,0 +1,31 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "gotglyphed",
+  "post": {
+    "dir": "webroot",
+    "entrypoints": {
+      "default": {
+        "entry": "index.html",
+        "height": "tall"
+      }
+    }
+  },
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.js"
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "New Glyphed Puzzle Post",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/create-post"
+      }
+    ]
+  },
+  "permissions": {
+    "redis": true,
+    "reddit": true
+  }
+}

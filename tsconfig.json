@@ -1,10 +1,10 @@
 {
-  "extends": "@devvit/tsconfig/devvit-app.json",
+  "extends": "@devvit/tsconfig/base.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "@anthropic-ai/sdk/ui",
     "rootDir": ".",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "noUnusedParameters": false,
+    "types": []
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

@@ -1,5 +1,5 @@
 // ============================================
-// The Archive — Puzzle Generator
+// Gotglyphed — Puzzle Generator
 // ============================================
 
 const GLYPH_SHAPES = ["circle", "triangle", "diamond", "star"];

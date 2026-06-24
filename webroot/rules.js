@@ -1,5 +1,5 @@
 // ============================================
-// The Archive — Rule Engine
+// Gotglyphed — Rule Engine
 // ============================================
 // Defines hidden rule types and validates glyph placements.
 // Each rule is a function: (grid, size) → boolean

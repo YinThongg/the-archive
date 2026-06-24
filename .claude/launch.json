@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "the-archive",
+      "name": "gotglyphed",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "webroot", "-l", "3000", "--no-clipboard"],
       "port": 3000

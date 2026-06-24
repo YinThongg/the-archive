@@ -1,12 +1,38 @@
-function sendToDevvit(message) {
-  window.parent.postMessage(message, "*");
+async function fetchInit() {
+  try {
+    const res = await fetch("/api/init", { method: "POST" });
+    if (!res.ok) return;
+    const msg = await res.json();
+    Stats.fingerprints = msg.stats.fingerprints;
+    Stats.perfects = msg.stats.perfects;
+    state.username = msg.username;
+    state.puzzleDate = msg.puzzleDate;
+    state.playerStreak = msg.player.streak;
+    if (msg.player.todaySolved) {
+      state.phase = "results";
+      state.cracks = msg.player.todayCracks;
+    }
+    render();
+  } catch (e) {
+    console.error("Failed to fetch init data:", e);
+  }
 }
 
-window.addEventListener("message", (event) => {
-  const msg = event.data?.data?.message;
-  if (!msg) return;
-  console.log("Message from Devvit:", msg);
-});
+async function sendSolveData(type, cracks, placements) {
+  try {
+    const res = await fetch("/api/solve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, cracks, placements }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    Stats.fingerprints = data.stats.fingerprints;
+    Stats.perfects = data.stats.perfects;
+  } catch (e) {
+    console.error("Failed to send solve data:", e);
+  }
+}
 
 const GRID_SIZE = 5;
 const RULE_COUNT = 3;
@@ -24,6 +50,9 @@ const state = {
   placed: {},
   cracks: 0,
   usedTray: new Set(),
+  username: "archivist",
+  puzzleDate: null,
+  playerStreak: 0,
 };
 
 function render() {
@@ -110,6 +139,15 @@ function renderPlaying(root) {
   root.appendChild(wrapper);
 }
 
+function buildPlacementsRecord() {
+  const record = {};
+  for (const [key, trayIdx] of Object.entries(state.placed)) {
+    const g = TRAY_GLYPHS[trayIdx];
+    record[key] = g.shape + ":" + g.color;
+  }
+  return record;
+}
+
 function onCellClick(row, col) {
   if (state.selected === null) return;
 
@@ -124,6 +162,7 @@ function onCellClick(row, col) {
 
     if (state.usedTray.size === TRAY_GLYPHS.length) {
       state.phase = "results";
+      sendSolveData("solved", state.cracks, buildPlacementsRecord());
     }
   } else {
     state.cracks++;
@@ -131,6 +170,7 @@ function onCellClick(row, col) {
 
     if (state.cracks >= 4) {
       state.phase = "results";
+      sendSolveData("failed", state.cracks, buildPlacementsRecord());
     }
   }
 
@@ -140,6 +180,7 @@ function onCellClick(row, col) {
 function renderResults(root) {
   const placed = state.usedTray.size;
   const total = TRAY_GLYPHS.length;
+  const won = placed === total;
 
   const container = document.createElement("div");
   container.className = "flex flex-col items-center gap-3";
@@ -149,10 +190,10 @@ function renderResults(root) {
   heading.className = "text-[64px] text-[--tan]";
   heading.style.fontFamily = "var(--font-display)";
 
-  const stats = document.createElement("div");
-  stats.className =
+  const statsDiv = document.createElement("div");
+  statsDiv.className =
     "font-mono text-[13px] text-[--text-secondary] tracking-[2px] text-center leading-[2.2]";
-  stats.innerHTML = `${placed}/${total} GLYPHS PLACED<br>CRACKS: ${state.cracks}/4`;
+  statsDiv.innerHTML = `${placed}/${total} GLYPHS PLACED<br>CRACKS: ${state.cracks}/4`;
 
   const shareBlock = document.createElement("div");
   shareBlock.className =
@@ -173,6 +214,12 @@ function renderResults(root) {
   }
   shareBlock.textContent = shareText.trim();
 
+  const communityDiv = document.createElement("div");
+  communityDiv.className =
+    "font-mono text-[11px] text-[--text-secondary] tracking-[1px] text-center mt-2";
+  communityDiv.textContent =
+    Stats.fingerprints + " fingerprints on this page today";
+
   const btn = document.createElement("button");
   btn.textContent = "[ PLAY AGAIN ]";
   btn.className =
@@ -187,10 +234,12 @@ function renderResults(root) {
   });
 
   container.appendChild(heading);
-  container.appendChild(stats);
+  container.appendChild(statsDiv);
   container.appendChild(shareBlock);
+  container.appendChild(communityDiv);
   container.appendChild(btn);
   root.appendChild(container);
 }
 
 render();
+fetchInit();
