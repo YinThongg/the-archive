@@ -331,6 +331,7 @@ function renderTitle(root, onStart) {
         <ellipse cx="510" cy="394" rx="32" ry="4" fill="#ece0ba" opacity="0.09"/>
         ${windowsSvg}
         ${notesSvg}
+
         <rect x="0" y="0" width="647" height="447" fill="url(#lines)"/>
         <rect x="0" y="0" width="647" height="447" fill="url(#edgeGlow)"/>
         <rect x="0" y="0" width="647" height="447" fill="url(#vignette)"/>
@@ -347,6 +348,31 @@ function renderTitle(root, onStart) {
       </g>
 
       <path d="${P.screen}" fill="none" stroke="rgba(14,175,65,0.13)" stroke-width="2" filter="url(#phosphor)"/>
+
+      <g transform="rotate(-11, 554, 62)" filter="url(#boil)">
+        <path d="M501 12 C524 8 576 14 615 19 L612 88 L590 108 L499 109 Z" fill="rgba(0,0,0,0.18)" transform="translate(4,6)"/>
+
+        <path d="M501 11 C524 7 577 13 615 18 L612 87 L590 107 L499 108 Z" fill="#F2DC52" filter="url(#grain)"/>
+        <path d="M501 11 C524 7 577 13 615 18 L613 28 L500 21 Z" fill="#D6BC28" opacity="0.45"/>
+
+        <line x1="507" y1="42" x2="607" y2="43" stroke="#B89A18" stroke-width="0.8" opacity="0.45" stroke-linecap="round"/>
+        <line x1="506" y1="55" x2="606" y2="56" stroke="#B89A18" stroke-width="0.8" opacity="0.45" stroke-linecap="round"/>
+        <line x1="505" y1="68" x2="605" y2="69" stroke="#B89A18" stroke-width="0.8" opacity="0.45" stroke-linecap="round"/>
+        <line x1="504" y1="81" x2="600" y2="82" stroke="#B89A18" stroke-width="0.8" opacity="0.45" stroke-linecap="round"/>
+        <line x1="503" y1="94" x2="588" y2="95" stroke="#B89A18" stroke-width="0.8" opacity="0.45" stroke-linecap="round"/>
+
+        <path d="M590 107 L612 87 L618 112 Z" fill="#C8A420"/>
+        <path d="M593 106 L610 89" stroke="#A08018" stroke-width="0.6" opacity="0.4" fill="none"/>
+
+        <path d="M501 11 C524 7 577 13 615 18 L612 87 L590 107 L499 108 Z" fill="none" stroke="#6A4C0E" stroke-width="2.2" stroke-linejoin="round" filter="url(#bloom)"/>
+        <path d="M503 13 C525 9 576 14 613 19 L610 86 L589 105 L501 106 Z" fill="none" stroke="#6A4C0E" stroke-width="1" stroke-linejoin="round" opacity="0.3"/>
+        <path d="M590 107 L612 87 L618 112 Z" fill="none" stroke="#6A4C0E" stroke-width="1.6" stroke-linejoin="round"/>
+
+        <text x="553" y="56" text-anchor="middle" fill="#3a2a06" font-family="'Jersey 15', sans-serif" font-size="30" font-weight="700">${Stats.getMock().fingerprints}</text>
+        <text x="552" y="72" text-anchor="middle" fill="#3a2a06" font-family="'Courier New', monospace" font-size="9.5" letter-spacing="0.6" opacity="0.75">fingerprints</text>
+        <text x="551" y="84" text-anchor="middle" fill="#3a2a06" font-family="'Courier New', monospace" font-size="9.5" letter-spacing="0.6" opacity="0.75">on this page</text>
+        <text x="540" y="100" text-anchor="middle" fill="#8b2a1a" font-family="'Courier New', monospace" font-size="8" letter-spacing="0.4" opacity="0.6">— today —</text>
+      </g>
 
       <g filter="url(#boil)">
         <path d="M285 447 C293 448 297 451 300 458 L305 475 C306 477 313 479 324 479 C335 479 342 477 343 475 L348 458 C351 451 355 448 363 447" stroke="#1F1F1F" stroke-width="3.5" fill="none"/>
